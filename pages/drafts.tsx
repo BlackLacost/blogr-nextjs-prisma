@@ -46,15 +46,15 @@ const Drafts: React.FC<Props> = (props) => {
 
   return (
     <Layout>
-      <div className="grid gap-y-4">
-        <h1>My Drafts</h1>
-        <main>
+      <div className="grid grid-cols-2 gap-8">
+        <h1 className="col-span-full">My Drafts</h1>
+        <>
           {props.drafts.map((post) => (
             <div key={post.id} className="post">
               <Post post={post} />
             </div>
           ))}
-        </main>
+        </>
       </div>
     </Layout>
   )

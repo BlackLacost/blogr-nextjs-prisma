@@ -1,8 +1,11 @@
 import { GetServerSideProps } from 'next'
+import { useSession } from 'next-auth/react'
+import Router from 'next/router'
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import Layout from '../../components/Layout'
 import { PostProps } from '../../components/Post'
+import TheButton from '../../components/TheButton'
 import prisma from '../../lib/prisma'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
@@ -11,7 +14,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     where: { id: String(id) },
     include: {
       author: {
-        select: { name: true },
+        select: { name: true, email: true },
       },
     },
   })
@@ -20,7 +23,23 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   }
 }
 
+async function publishPost(id: string): Promise<void> {
+  await fetch(`/api/publish/${id}`, {
+    method: 'PUT',
+  })
+  await Router.push('/')
+}
+
 const Post: React.FC<PostProps> = (props) => {
+  const { data: session, status } = useSession()
+
+  if (status === 'loading') {
+    return <div>Authentication ...</div>
+  }
+
+  const userHasValidSession = Boolean(session)
+  const postBelongsToUser = session?.user?.email === props.author?.email
+
   let title = props.title
   if (!props.published) {
     title = `${title} (Draft)`
@@ -32,6 +51,9 @@ const Post: React.FC<PostProps> = (props) => {
         <h2>{title}</h2>
         <p>By {props?.author?.name || 'Unknown author'}</p>
         <ReactMarkdown children={props.content} />
+        {!props.published && userHasValidSession && postBelongsToUser && (
+          <TheButton onClick={() => publishPost(props.id)}>Publish</TheButton>
+        )}
       </div>
       <style jsx>{`
         .actions {
