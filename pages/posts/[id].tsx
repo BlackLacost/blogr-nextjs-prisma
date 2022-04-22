@@ -27,7 +27,14 @@ async function publishPost(id: string): Promise<void> {
   await fetch(`/api/publish/${id}`, {
     method: 'PUT',
   })
-  await Router.push('/')
+  Router.push('/')
+}
+
+async function deletePost(id: string): Promise<void> {
+  await fetch(`/api/posts/${id}`, {
+    method: 'DELETE',
+  })
+  Router.push('/')
 }
 
 const Post: React.FC<PostProps> = (props) => {
@@ -47,30 +54,19 @@ const Post: React.FC<PostProps> = (props) => {
 
   return (
     <Layout>
-      <div className="p-8 bg-white">
+      <div className="grid gap-y-2 p-8 bg-white">
         <h2>{title}</h2>
         <p>By {props?.author?.name || 'Unknown author'}</p>
         <ReactMarkdown children={props.content} />
-        {!props.published && userHasValidSession && postBelongsToUser && (
-          <TheButton onClick={() => publishPost(props.id)}>Publish</TheButton>
-        )}
+        <div className="flex gap-4">
+          {!props.published && userHasValidSession && postBelongsToUser && (
+            <TheButton onClick={() => publishPost(props.id)}>Publish</TheButton>
+          )}
+          {userHasValidSession && postBelongsToUser && (
+            <TheButton onClick={() => deletePost(props.id)}>Delete</TheButton>
+          )}
+        </div>
       </div>
-      <style jsx>{`
-        .actions {
-          margin-top: 2rem;
-        }
-
-        button {
-          background: #ececec;
-          border: 0;
-          border-radius: 0.125rem;
-          padding: 1rem 2rem;
-        }
-
-        button + button {
-          margin-left: 1rem;
-        }
-      `}</style>
     </Layout>
   )
 }
