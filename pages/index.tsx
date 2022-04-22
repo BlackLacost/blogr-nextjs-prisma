@@ -2,54 +2,17 @@ import { GetServerSideProps } from 'next'
 import React from 'react'
 import Layout from '../components/Layout'
 import Post, { PostProps } from '../components/Post'
+import prisma from '../lib/prisma'
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const feed = [
-    {
-      id: '1',
-      title: 'Prisma is the perfect ORM for Next.js',
-      content:
-        '[Prisma](https://github.com/prisma/prisma) and Next.js go _great_ together!',
-      published: false,
+  const feed = await prisma.post.findMany({
+    where: { published: true },
+    include: {
       author: {
-        name: 'Nikolas Burk',
-        email: 'burk@prisma.io',
+        select: { name: true },
       },
     },
-    {
-      id: '2',
-      title: 'Prisma is the perfect ORM for Next.js',
-      content:
-        '[Prisma](https://github.com/prisma/prisma) and Next.js go _great_ together!',
-      published: false,
-      author: {
-        name: 'Nikolas Burk',
-        email: 'burk@prisma.io',
-      },
-    },
-    {
-      id: '3',
-      title: 'Prisma is the perfect ORM for Next.js',
-      content:
-        '[Prisma](https://github.com/prisma/prisma) and Next.js go _great_ together!',
-      published: false,
-      author: {
-        name: 'Nikolas Burk',
-        email: 'burk@prisma.io',
-      },
-    },
-    {
-      id: '4',
-      title: 'Prisma is the perfect ORM for Next.js',
-      content:
-        '[Prisma](https://github.com/prisma/prisma) and Next.js go _great_ together!',
-      published: false,
-      author: {
-        name: 'Nikolas Burk',
-        email: 'burk@prisma.io',
-      },
-    },
-  ]
+  })
   return { props: { feed } }
 }
 
